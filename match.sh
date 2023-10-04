@@ -1,5 +1,9 @@
 #!/usr/bin/env bash
-SAVEIFS=$IFS
+if [ "${BASH_VERSINFO[0]}" -lt 4 ] || ([ "${BASH_VERSINFO[0]}" -eq 4 ] && [ "${BASH_VERSINFO[1]}" -lt 3 ]); then
+    echo "Script requires bash 4.3+"
+    exit
+fi
+
 
 process_matches() {
     local -n matches="$1"
@@ -25,10 +29,12 @@ process_matches() {
 }
 
 
+SAVEIFS=$IFS
+
 # parse list of all colors that the shiki theme uses
 light_colors=( $(grep -oE '#[0-9A-Fa-f]{6}' ./leuven.json) )
-echo -e "Parsed Colors:\n${light_colors[*]}"
-echo "==================================="
+#echo -e "Parsed Colors:\n${light_colors[*]}"
+#echo "==================================="
 
 # grep for those colors and group by match
 # as there will likely be multiple matches between fg and bg colors
