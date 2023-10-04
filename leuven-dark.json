@@ -5,13 +5,13 @@
     "editor.background": "#FFFFFF",
     "editor.foreground": "#333333",
     "editorCursor.background": "#21BDFF",
-    "editor.selectionBackground": "#8ED3FF",
-    "editor.selectionHighlightBackground": "#FFFF00AA",
-    "editor.selectionForeground": "#FFFFFF",
+    "editor.selectionBackground": "#752c0b",
+    "editor.selectionHighlightBackground": "#0601ffAA",
+    "editor.selectionForeground": "#25202a",
     "editor.wordHighlightBackground": "#E6ECFFAA",
-    "diffEditor.insertedTextBackground": "#DDFFDDAA",
-    "diffEditor.removedTextBackground": "#FEE8E9AA",
-    "editor.lineHighlightBackground": "#F6FECDAA",
+    "diffEditor.insertedTextBackground": "#442049AA",
+    "diffEditor.removedTextBackground": "#25353eAA",
+    "editor.lineHighlightBackground": "#2d2058AA",
     "editorSuggestWidget.focusHighlightForeground": "#9DDDFF",
     "editorBracketMatch.background": "#C0E8C3",
     "editorBracketMatch.border": "#FFA5A5",
@@ -146,7 +146,7 @@
       "name": "Strings",
       "scope": "string",
       "settings": {
-        "foreground": "#008000"
+        "foreground": "#ff7fff"
       }
     },
     {
