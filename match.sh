@@ -1,22 +1,54 @@
 #!/usr/bin/env bash
+SAVEIFS=$IFS
 
 # parse list of all colors that the shiki theme uses
 light_colors=( $(grep -oE '#[0-9A-Fa-f]{6}' ./leuven.json) )
-echo -e "Parsed Colors:\n [${light_colors[*]}]"
+echo -e "Parsed Colors:\n${light_colors[*]}"
+echo "==================================="
 
-# Construct a regex pattern for matching each color code along with the word before it
-regex_pattern=$(IFS="|"; echo "(\w+\s*\S*\s*)(${light_colors[*]// /|})")
-keys=$(grep -E -oz "$regex_pattern" ./leuven-theme.el)
+# grep for those colors and group by match
+# as there will likely be multiple matches between fg and bg colors
+# split the search into two distinct outputs, one for each usecase
+fg_search=("${light_colors[@]/#/foreground(\w*) \"}")
+bg_search=("${light_colors[@]/#/background(\w*) \"}")
+fg_regex_pattern=$(IFS="|"; echo "${fg_search[*]}")
+bg_regex_pattern=$(IFS="|"; echo "${bg_search[*]}")
 
-# Replace null characters with newline characters
-keys="${keys//$'\0'/$'\n'}"
+# match fg and bg using the above patterns, grep returns a string
+fg_matches=( "$(grep -E "$fg_regex_pattern" ./leuven-theme.el)" )
+bg_matches=( "$(grep -E "$bg_regex_pattern" ./leuven-theme.el)" )
 
-# Use sed to remove non-alphanumeric characters (excluding # and newline)
-cleaned_keys=$(echo "$keys" | sed -e 's/[^#[:alnum:]\n]/ /g')
-echo -e "Matched Keys:\n ${cleaned_keys[*]}"
+# split strings into arrays
+IFS=$'\n'
+fg_matches=($fg_matches)
+bg_matches=($bg_matches)
+
+fg_keys=()
+fg_values=()
+for match in ${fg_matches[@]}; do
+    # split at first :, use the first part as the key as it provides context
+    part1="${match%%:*}"
+    # Trim leading whitespace
+    part1="${part1#"${part1%%[![:space:]]*}"}"
+    # Trim trailing whitespace
+    key="${part1%"${part1##*[![:space:]]}"}"
+    # process the second part and extract only the color code as the value
+    part2="${match#*:}"
+    value=$(echo "$part2" | grep -oE 'foreground\s*"#[0-9A-Fa-f]{6}"' | grep -oE '#[0-9A-Fa-f]{6}')
+
+    # add the key
+    fg_keys+=(key)
+    # add the value
+    fg_values+=(value)
+done
+
+#echo -e "Matched FG Keys:\n${fg_keys[*]}"
+#echo "==================================="
+#echo -e "Matched BG Keys:\n${bg_keys[*]}"
+#echo "==================================="
 	   
-# select the keys to use
 
 # duplicate shiki theme
+#cp leuven.json leuven-dark.json
 
 # replace all original colors with colors from the seleted key matches
