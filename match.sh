@@ -1,6 +1,30 @@
 #!/usr/bin/env bash
 SAVEIFS=$IFS
 
+process_matches() {
+    local -n matches="$1"
+    local -n keys="$2"
+    local -n values="$3"
+    local fg_or_bg="$4"
+    for match in ${matches[@]}; do
+	# split at first :, use the first part as the key as it provides context
+	part1="${match%%:*}"
+	# Trim leading whitespace
+	part1="${part1#"${part1%%[![:space:]]*}"}"
+	# Trim trailing whitespace
+	key="${part1%"${part1##*[![:space:]]}"}"
+	# process the second part and extract only the color code as the value
+	part2="${match#*:}"
+	value=$(echo "$part2" | grep -oE 'foreground\s*"#[0-9A-Fa-f]{6}"' | grep -oE '#[0-9A-Fa-f]{6}')
+
+	# add the key
+	keys+=(key)
+	# add the value
+	values+=(value)
+    done
+}
+
+
 # parse list of all colors that the shiki theme uses
 light_colors=( $(grep -oE '#[0-9A-Fa-f]{6}' ./leuven.json) )
 echo -e "Parsed Colors:\n${light_colors[*]}"
@@ -23,23 +47,12 @@ IFS=$'\n'
 fg_matches=($fg_matches)
 bg_matches=($bg_matches)
 
-fg_keys=()
-fg_values=()
-for match in ${fg_matches[@]}; do
-    # split at first :, use the first part as the key as it provides context
-    part1="${match%%:*}"
-    # Trim leading whitespace
-    part1="${part1#"${part1%%[![:space:]]*}"}"
-    # Trim trailing whitespace
-    key="${part1%"${part1##*[![:space:]]}"}"
-    # process the second part and extract only the color code as the value
-    part2="${match#*:}"
-    value=$(echo "$part2" | grep -oE 'foreground\s*"#[0-9A-Fa-f]{6}"' | grep -oE '#[0-9A-Fa-f]{6}')
+declare -a fg_keys
+declare -a fg_values
+process_matches fg_matches fg_keys fg_values "foreground"
 
-    # add the key
-    fg_keys+=(key)
-    # add the value
-    fg_values+=(value)
+for k in ${fg_keys[@]}; do
+    echo $k
 done
 
 #echo -e "Matched FG Keys:\n${fg_keys[*]}"
@@ -52,3 +65,5 @@ done
 #cp leuven.json leuven-dark.json
 
 # replace all original colors with colors from the seleted key matches
+
+IFS=$SAVEIFS
