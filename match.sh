@@ -71,24 +71,20 @@ process_matches() {
 make_variant() {
     local -n light_to_dark="$1"
     local fg_or_bg="$2"
+    # capitalize F or B
+    local Fg_or_Bg="${fg_or_bg^}"
     for light in "${!light_to_dark[@]}"; do
 	dark="${light_to_dark[$light]}"
 	# Define the search and replace strings
-	search_string_light="$fg_or_bg\":\s*\"$light\""
-	replace_string_dark="$fg_or_bg\": \"$dark\""
 	# Replace the colors with the dark variants
-	# the first part is case-sensitive to match lowercsat foreground/background
+	# the first part is case-sensitive to match lowercase foreground/background
 	# and the second part case-insensitive because we tolowered the colors
-	sed -i "s/\($search_string_light\)/$replace_string_dark/I" "$output_file"
+        sed -i -E "s/($fg_or_bg\": *)\"$light\"/\1\"$dark\"/I" "$output_file"
 
-	# capitalize F or B
-	fg_or_bg="${fg_or_bg^}"
-	search_string_light="$fg_or_bg\":\s*\"$light\""
-	replace_string_dark="$fg_or_bg\": \"$dark\""
 	# Replace the colors with the dark variants
-	# the first part is case-sensitive to match lowercsat foreground/background
+	# the first part is case-sensitive to match uppercase foreground/background
 	# and the second part case-insensitive because we tolowered the colors
-	sed -i "s/\($search_string_light\)/$replace_string_dark/I" "$output_file"
+        sed -i -E "s/($Fg_or_Bg\": *)\"$light\"/\1\"$dark\"/I" "$output_file"
     done
 }
 
